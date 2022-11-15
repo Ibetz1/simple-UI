@@ -10,16 +10,18 @@ buf:renderTo(function()
     love.graphics.clear(1, 1, 1, 1)
 end)
 
-local i1 = ui.widgets.image {
-    image = buf,
-    mask = {1, 0, 0, 1},
+local s1 = ui.widgets.slider {
     x = 50,
-    y = 50
+    y = 30,
+    scale = 2,
+    lineThickness = 8,
+    length = 120,
+    -- orientation = "vertical"
 }
 
 local b2 = ui.widgets.button {
     text = "button 2",
-    scale = 1,
+    scale = 2,
     x = 150,
     y = 200,
     padw = 5,
@@ -31,9 +33,9 @@ local b2 = ui.widgets.button {
 
 local b1 = ui.widgets.button {
     text = "button 1",
-    scale = 1,
+    scale = 2,
     x = 50,
-    y = 200,
+    y = 300,
     padw = 5,
     padh = 5,
     borderSize = 2,

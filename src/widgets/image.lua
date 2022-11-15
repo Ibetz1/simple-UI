@@ -3,6 +3,7 @@ local image = object:new(ui.widget)
 function image:init(properties)
 
     self:map(properties.layer)
+    self:show()
 
     -- texture properties
     self.image =   properties.image or love.graphics.newCanvas()
