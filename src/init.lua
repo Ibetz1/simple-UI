@@ -20,7 +20,12 @@ function PCC(x, y, x1, y1, r)
     return ((x1 - x) ^ 2 + (y1 - y) ^ 2) ^ 0.5 < r
 end
 
+-- ui lib
 ui = {}
+
+require(_PACKAGE .. "tools")
+
+-- ui cls
 ui.map = require(_PACKAGE .. "map")()
 ui.widget = require(_PACKAGE .. "widget")
 ui.widgets = require(_PACKAGE .. "widgets")

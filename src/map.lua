@@ -15,6 +15,7 @@ function map:addWidget(widget, layer)
     -- add widget
     table.insert(self.widgets, widget)
     widget.index = #self.widgets
+    widget.map   = self
 
     -- move to layer
     local layer = layer or widget.index
@@ -50,5 +51,5 @@ function map:draw()
     love.graphics.draw(self.buffer)
 end
 
-print("UI >> map object created")
+ui.logging.log("UI >> map object created", "notification")
 return map

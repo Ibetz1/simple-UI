@@ -1,27 +1,22 @@
-local image = object:new(ui.widget)
+-- object and environment
+local _PACKAGE = string.gsub(...,"%.","/") .. "/" or ""
+local env = require(_PACKAGE .. "defaultEnv")
+local obj = object:new(ui.widget)
 
-function image:init(properties)
+function obj:init(properties)
 
     self:map(properties.layer)
     self:show()
+    self:loadProperties(properties, env)
 
-    -- texture properties
+    -- custom properties
     self.image =   properties.image or love.graphics.newCanvas()
-    self.mask =  properties.mask or {1, 1, 1, 1}
-
-    -- image properties
-    self.scale = properties.scale or 1
-    self.x =     properties.x or 0
-    self.y =     properties.y or 0
-    self.angle = properties.angle or 0
-    self.alignx = properties.alignx or "left"
-    self.aligny = properties.aligny or "top"
-
     self.w = self.image:getWidth()  * self.scale
     self.h = self.image:getHeight() * self.scale
+    self.angle =  properties.angle or 0
 end
 
-function image:draw(ox, oy)
+function obj:draw(ox, oy)
 
     -- check for draw?
     local ox, oy = ox or 0, oy or 0
@@ -30,7 +25,7 @@ function image:draw(ox, oy)
     if (self.y + self.h < 0 or self.y > love.graphics.getWidth()) then return end
 
     -- render the image
-    love.graphics.setColor(self.mask)
+    love.graphics.setColor(self.color.mask[1])
     local x, y = self.x, self.y
 
     -- set alignment
@@ -43,5 +38,5 @@ function image:draw(ox, oy)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-print("UI >> Widgets >> image object created")
-return image
+ui.logging.log("UI >> Widgets >> image object created", "notification")
+return obj

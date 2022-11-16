@@ -1,22 +1,27 @@
 require("src")
 
 local function pressed(x, y, b)
-    print("pressed!")
+    ui.logging.log("pressed!")
 end
-
 
 local buf = love.graphics.newCanvas(20, 20)
 buf:renderTo(function() 
     love.graphics.clear(1, 1, 1, 1)
 end)
 
+local i1 = ui.widgets.image {
+    x = 400,
+    y = 20,
+    image = buf,
+    -- maskColor = {1, 0, 0, 1}
+}
+
 local s1 = ui.widgets.slider {
     x = 50,
     y = 30,
     scale = 2,
-    lineThickness = 8,
-    length = 120,
-    -- orientation = "vertical"
+    borderSize = 8,
+    length = 120
 }
 
 local b2 = ui.widgets.button {
@@ -27,8 +32,8 @@ local b2 = ui.widgets.button {
     padw = 5,
     padh = 5,
     borderSize = 2,
-    textAlign = "center",
-    textColor = {0, 1, 0, 1}
+    -- borderColorPressed = {1, 0, 0, 0}
+    borderColorIdle = {1, 0, 0, 0}
 }
 
 local b1 = ui.widgets.button {
@@ -39,8 +44,6 @@ local b1 = ui.widgets.button {
     padw = 5,
     padh = 5,
     borderSize = 2,
-    textAlign = "center",
-    textColor = {1, 0, 0, 1}
 }
 
 function love.update(dt)
@@ -49,4 +52,11 @@ end
 
 function love.draw()
     ui.map:draw()
+    ui.logging:render()
+end
+
+function love.keyreleased(key)
+    if (key == "l") then
+        ui.logging.toggle()
+    end
 end
