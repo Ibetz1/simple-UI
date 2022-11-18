@@ -11,8 +11,11 @@ function obj:init(properties)
     self:loadProperties(properties, env)
 
     -- custom properties
-    self.w = properties.w or ui.map.font:getWidth(self.text) * self.scale
-    self.h = properties.h or ui.map.font:getHeight(self.text) * self.scale    
+    self.w = properties.w or ui.map.font:getWidth(self.text)
+    self.h = properties.h or ui.map.font:getHeight(self.text)
+
+    self.buffer = love.graphics.newCanvas(self.w + 2 * self.padw + self.borderSize * 2, 
+                                          self.h + 2 * self.padh + self.borderSize * 2)
 end
 
 -- activates functions accordingly
@@ -42,8 +45,8 @@ end
 -- updates button state
 function obj:update(dt, ox, oy)
     local ox, oy = ox or 0, oy or 0
-    local padx, pady = self.x + ox - self.padw, self.y + oy - self.padh
-    local padw, padh = self.w + self.padw * 2, self.h + self.padh * 2
+    local padx, pady = self.x + ox - self.padw , self.y + oy - self.padh
+    local padw, padh = self.w + self.padw * 2 + (self.borderSize * self.scale), self.h + self.padh * 2 + (self.borderSize * self.scale)
 
     -- check for update?
     if not self.show then return end
@@ -54,49 +57,51 @@ function obj:update(dt, ox, oy)
     local mx, my = love.mouse.getPosition()
 
     -- get button state
-    self.hover = PBB(mx, my, padx, pady, padw, padh)
+    self.hover = PBB(mx, my, padx, pady, padw * self.scale, padh * self.scale)
     self.pressed = self.hover and love.mouse.isDown(1)
+    local preState = self.state
     self.state = boolToInt(self.hover) + boolToInt(self.pressed) + 1
 
+    if preState == self.state then return end
+
     self:applyFunctionality(mx, my)
+
+    -- pre render
+    self.buffer:renderTo(function()
+        love.graphics.clear(0, 0, 0, 0)
+        local px, py = self.borderSize, self.borderSize
+        local pw, ph = padw - self.borderSize * self.scale, padh - self.borderSize * self.scale
+
+        -- border
+        love.graphics.setColor(self.color.border[self.state])
+        love.graphics.rectangle("fill", 0, 0, padw, padh)
+
+        -- inner
+        love.graphics.setColor(self.color.fill[self.state])
+        love.graphics.rectangle("fill", px, py, pw, ph)
+
+
+        -- alignment
+        if self.alignx == "center" then px = px + self.padw end
+        if self.alignx == "right" then px = px + 2 * self.padw end
+        if self.aligny == "center" then py = py + self.padh end
+        if self.aligny == "bottom" then py = py + 2 * self.padh end
+
+        -- text
+        love.graphics.setColor(self.color.text[self.state])
+        love.graphics.print(self.text, px, py, 0)
+
+        love.graphics.setColor(1, 1, 1, 1)
+    end)
 end
 
 -- draws button
 function obj:draw(ox, oy)
-
-    local padx, pady = self.x + ox - self.padw, self.y + oy - self.padh
-    local padw, padh = self.w + self.padw * 2, self.h + self.padh * 2
-
-    -- check for render?
     local ox, oy = ox or 0, oy or 0
-    if not self.show then return end
-    if (padx + padw < 0 or padx > love.graphics.getWidth()) then return end
-    if (pady + padh < 0 or pady > love.graphics.getWidth()) then return end
 
+    love.graphics.setColor(self.color.mask[self.state])
 
-    -- render button box
-    love.graphics.setColor(self.color.fill[self.state])
-    love.graphics.rectangle("fill", padx, pady, padw, padh)
-
-    -- render outline
-    love.graphics.setLineWidth(self.borderSize)
-
-    love.graphics.setColor(self.color.border[self.state])
-    love.graphics.rectangle("line", padx, pady, padw, padh)
-
-    love.graphics.setLineWidth(1)
-
-    -- render text
-    love.graphics.setColor(self.color.text[self.state])
-
-    do
-        -- set alignment
-        local x, y = self.x + ox, self.y + oy
-        if self.alignx == "left"  then x = self.x + ox - self.padw + self.scale end
-        if self.alignx == "right" then x = self.x + ox + self.padw - self.scale end
-
-        love.graphics.print(self.text, x, y, 0, self.scale, self.scale)
-    end
+    love.graphics.draw(self.buffer, self.x - self.padw + ox, self.y - self.padh + oy, 0, self.scale, self.scale)
 
     love.graphics.setColor(1, 1, 1, 1)
 end

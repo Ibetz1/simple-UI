@@ -9,10 +9,10 @@ function obj:init(properties)
     self:loadProperties(properties, env)
 
     -- custom properties
-    self.length = (properties.length or 100) * self.scale
-    self.orientation = properties.orientation or "horizontal"
     self.boxw = self.length
-    self.boxh = (properties.boxh or 3) * self.borderSize
+    self.boxh = self.boxh * self.borderSize
+
+    self.buffer = love.graphics.newCanvas(self.boxw + 2 * self.borderSize, self.boxh)
 end
 
 -- returns value from slider
@@ -54,36 +54,41 @@ function obj:update(dt, ox, oy)
 
     local dist = 0
 
-    -- vertical state check
-    if self.orientation == "vertical" then
-        dist = my - (self.y + oy)
-        local cx, cy = self.x + ox, self.y + oy + self.val * self.boxw
-        self.hover = PBB(mx, my, self.x + ox - self.boxh / 2, self.y + oy, self.boxh, self.boxw)
-        self.hover = self.hover or PCC(mx, my, cx, cy, self.borderSize)
-    end
-
-    -- horizontal state check
-    if self.orientation == "horizontal" then
-        dist = mx - (self.x + ox)
-        local cx, cy = self.x + ox + self.boxw * self.val, self.y + oy
-        self.hover = PBB(mx, my, self.x + ox, self.y + oy - self.boxh / 2, self.boxw, self.boxh)
-        self.hover = self.hover or PCC(mx, my, cx, cy, self.borderSize)
-    end
-
     -- get slider state
+    self.hover = PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, self.buffer:getWidth() * self.scale, self.buffer:getHeight() * self.scale)
     self.pressed = self.hover and love.mouse.isDown(1)
+    local state = self.state
     self.state = boolToInt(self.hover) + boolToInt(self.pressed) + 1
-    
+
     -- update value
-    if self.pressed then
-        local val = math.floor(math.max(math.min(dist / self.boxw, 1), 0) * 1000) / 1000
-        self.slide = val ~= self.val
-        self.val = val
+    if self.state == 3 then
+        -- self.val = mx / ()
+        self.slide = true
     else
         self.slide = false
     end
 
     self:applyFunctionality(mx, my)
+
+    if state ~= -1 and self.state == 1 then return end
+
+    -- pre render
+    self.buffer:renderTo(function()
+        love.graphics.clear(1, 1, 1, 1)
+        
+        love.graphics.setLineWidth(self.borderSize) do
+
+            -- track background
+            love.graphics.setColor(self.color.border[self.state])
+            love.graphics.line(self.borderSize, self.buffer:getHeight() / 2, 
+                            self.buffer:getWidth() - self.borderSize, self.buffer:getHeight() / 2)
+
+            love.graphics.setColor(self.color.accent[self.state])
+            love.graphics.line(self.borderSize, self.buffer:getHeight() / 2,
+                            self.buffer:getWidth() * self.val - self.borderSize, self.buffer:getHeight() / 2)
+
+        love.graphics.setLineWidth(1) end
+    end)
 end
 
 -- draw slider
@@ -107,17 +112,25 @@ function obj:draw(ox, oy)
 
         -- render track background
         love.graphics.setColor(self.color.border[self.state])
-        love.graphics.line(x1, y1, x2, y2)
+        -- love.graphics.line(x1, y1, x2, y2)
 
         -- render track foreground
         love.graphics.setColor(self.color.accent[self.state])
-        love.graphics.line(x1, y1, px, py)
+        -- love.graphics.line(x1, y1, px, py)
 
     love.graphics.setLineWidth(1)
 
     -- render button
     love.graphics.setColor(self.color.fill[self.state])
-        love.graphics.circle("fill", cx, cy, self.borderSize)
+        -- love.graphics.circle("fill", cx, cy, self.borderSize)
+
+
+
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(self.buffer, self.x + ox, self.y + oy, 0, self.scale)
+
+    love.graphics.setColor(1, 0,0,1)
+    love.graphics.circle("fill", self.x + (self.borderSize + self.length) * self.scale, self.y, 3)
     love.graphics.setColor(1, 1, 1, 1)
 end
 

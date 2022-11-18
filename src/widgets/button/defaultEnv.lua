@@ -3,7 +3,7 @@ return {
     hoverCount = 0,
     pressed = false,
     pressCount = 0,
-    state = 1,
+    state = -1,
 
     onhover = function(x, y, b)
         if b.hoverCount > 0 then return end

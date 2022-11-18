@@ -12,15 +12,14 @@ end)
 local i1 = ui.widgets.image {
     x = 400,
     y = 20,
-    image = buf,
-    -- maskColor = {1, 0, 0, 1}
+    image = buf
 }
 
 local s1 = ui.widgets.slider {
     x = 50,
-    y = 30,
+    y = 60,
     scale = 2,
-    borderSize = 8,
+    borderSize = 4,
     length = 120
 }
 
@@ -29,11 +28,9 @@ local b2 = ui.widgets.button {
     scale = 2,
     x = 150,
     y = 200,
-    padw = 5,
-    padh = 5,
-    borderSize = 2,
-    -- borderColorPressed = {1, 0, 0, 0}
-    borderColorIdle = {1, 0, 0, 0}
+    padw = 2,
+    padh = 2,
+    borderSize = 2
 }
 
 local b1 = ui.widgets.button {
