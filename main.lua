@@ -24,24 +24,28 @@ local s1 = ui.widgets.slider {
 }
 
 local b2 = ui.widgets.button {
-    text = "button 2",
-    scale = 2,
-    x = 150,
+    text = "Button 2",
+    scale = 3,
+    x = 16,
     y = 200,
     padw = 2,
     padh = 2,
-    borderSize = 2
+    borderSize = 0
 }
 
 local b1 = ui.widgets.button {
     text = "button 1",
-    scale = 2,
-    x = 50,
+    scale = 5,
+    x = 16,
     y = 300,
-    padw = 5,
-    padh = 5,
-    borderSize = 2,
+    padw = 3,
+    padh = 2,
+    borderSize = 1,
+    cornerRadius = 5
 }
+
+ui.map:setAlignment(16, 16)
+ui.map:alignWidgets()
 
 function love.update(dt)
     ui.map:update(dt)

@@ -38,6 +38,7 @@ return {
 
     -- default scalars
     x = 0, y = 0,
+    w = 0, h = 0,
     padw = 0, padh = 0,
     borderSize = 1,
     scale = 1,
@@ -46,6 +47,7 @@ return {
     alignx = ALIGN_CENTER, aligny = ALIGN_CENTER,
 
     -- default values
+    show = true,
     val = 0,
     text = "text",
 }

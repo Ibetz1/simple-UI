@@ -4,6 +4,7 @@ return {
     pressed = false,
     pressCount = 0,
     state = -1,
+    cornerRadius = 0,
 
     onhover = function(x, y, b)
         if b.hoverCount > 0 then return end

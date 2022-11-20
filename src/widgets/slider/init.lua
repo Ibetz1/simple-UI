@@ -9,14 +9,11 @@ function obj:init(properties)
     self:loadProperties(properties, env)
 
     -- custom properties
-    self.boxw = self.length
     self.boxh = self.boxh * self.borderSize
 
-    self.buffer = love.graphics.newCanvas(self.boxw + 2 * self.borderSize, self.boxh)
+    self.buffer = love.graphics.newCanvas(self.length + 2 * self.borderSize, self.boxh)
+    self.w, self.h = self.buffer:getWidth(), self.buffer:getHeight()
 end
-
--- returns value from slider
-function obj:getVal() return self.val end
 
 -- activates functions accordingly
 function obj:applyFunctionality(mx, my)
@@ -47,34 +44,9 @@ function obj:applyFunctionality(mx, my)
     end
 end
 
--- update slider
-function obj:update(dt, ox, oy)
-    local ox, oy = ox or 0, oy or 0
-    local mx, my = love.mouse.getPosition()    
-
-    local dist = 0
-
-    -- get slider state
-    self.hover = PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, self.buffer:getWidth() * self.scale, self.buffer:getHeight() * self.scale)
-    self.pressed = self.hover and love.mouse.isDown(1)
-    local state = self.state
-    self.state = boolToInt(self.hover) + boolToInt(self.pressed) + 1
-
-    -- update value
-    if self.state == 3 then
-        -- self.val = mx / ()
-        self.slide = true
-    else
-        self.slide = false
-    end
-
-    self:applyFunctionality(mx, my)
-
-    if state ~= -1 and self.state == 1 then return end
-
-    -- pre render
+function obj:preRender()
     self.buffer:renderTo(function()
-        love.graphics.clear(1, 1, 1, 1)
+        love.graphics.clear(0, 0, 0, 1)
         
         love.graphics.setLineWidth(self.borderSize) do
 
@@ -83,56 +55,63 @@ function obj:update(dt, ox, oy)
             love.graphics.line(self.borderSize, self.buffer:getHeight() / 2, 
                             self.buffer:getWidth() - self.borderSize, self.buffer:getHeight() / 2)
 
+            -- progress bar
             love.graphics.setColor(self.color.accent[self.state])
-            love.graphics.line(self.borderSize, self.buffer:getHeight() / 2,
-                            self.buffer:getWidth() * self.val - self.borderSize, self.buffer:getHeight() / 2)
+            love.graphics.line(self.borderSize, self.buffer:getHeight() / 2, (self.length * self.val) + self.borderSize, self.buffer:getHeight() / 2)
+
+            -- button
+            love.graphics.setColor(self.color.fill[self.state])
+            love.graphics.circle("fill", (self.length * self.val) + self.borderSize, self.buffer:getHeight() / 2, self.borderSize)
 
         love.graphics.setLineWidth(1) end
     end)
 end
 
+-- update slider
+function obj:update(dt, ox, oy)
+
+    -- mouse position
+    local mx, my = love.mouse.getPosition()   
+
+    -- get slider state
+    self.hover = PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, self.buffer:getWidth() * self.scale, self.buffer:getHeight() * self.scale)
+    self.pressed = self.hover and love.mouse.isDown(1)
+    local state = self.state
+    self.state = boolToInt(self.hover) + boolToInt(self.pressed) + 1
+
+    -- get slider value
+    self.slide = false
+    if self.state == 3 then
+        local dist = mx - (self.x + ox + (self.borderSize) * self.scale)
+        self.val = math.floor(math.max(math.min(dist / (self.length * self.scale), 1), 0) * 1000) / 1000
+        self.slide = true  
+    end
+
+    self:applyFunctionality(mx, my)
+
+    -- check if actually needs to re-render
+    if state ~= -1 and self.state == 1 and state == self.state then return end
+    self:preRender()
+end
+
 -- draw slider
 function obj:draw(ox, oy)
 
-    -- swap orientation to horizontal
     local ox, oy = ox or 0, oy or 0
-    local x1, y1, x2, y2 = self.x + ox, self.y + oy, self.x + ox + self.length, self.y + oy
-    local px, py = x2 - self.length * (1 - self.val), y2
-    local cx, cy = self.x + ox + self.boxw * self.val, self.y + oy
-
-    -- swap orientation to vertical
-    if self.orientation == "vertical" then
-        x2, y2 = self.x + ox, self.y + oy + self.length
-        cx, cy = self.x + ox, self.y + oy + self.val * self.boxw
-        px, py = x2, self.y - self.length * (1 - self.val)
-    end
-
-    -- render track
-    love.graphics.setLineWidth(self.borderSize)
-
-        -- render track background
-        love.graphics.setColor(self.color.border[self.state])
-        -- love.graphics.line(x1, y1, x2, y2)
-
-        -- render track foreground
-        love.graphics.setColor(self.color.accent[self.state])
-        -- love.graphics.line(x1, y1, px, py)
-
-    love.graphics.setLineWidth(1)
-
-    -- render button
-    love.graphics.setColor(self.color.fill[self.state])
-        -- love.graphics.circle("fill", cx, cy, self.borderSize)
-
-
-
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.buffer, self.x + ox, self.y + oy, 0, self.scale)
-
-    love.graphics.setColor(1, 0,0,1)
-    love.graphics.circle("fill", self.x + (self.borderSize + self.length) * self.scale, self.y, 3)
-    love.graphics.setColor(1, 1, 1, 1)
 end
+
+
+----------------------
+-- object utilities --
+----------------------
+
+-- sets slider value
+function obj:setVal(v) self.val = v end
+
+-- returns value from slider
+function obj:getVal() return self.val end
 
 ui.logging.log("UI >> Widgets >> slider object created", "notification")
 return obj

@@ -11,11 +11,12 @@ function obj:init(properties)
     self:loadProperties(properties, env)
 
     -- custom properties
-    self.w = properties.w or ui.map.font:getWidth(self.text)
-    self.h = properties.h or ui.map.font:getHeight(self.text)
+    self.textW = properties.w or ui.map.font:getWidth(self.text)
+    self.textH = properties.h or ui.map.font:getHeight(self.text)
+    self.w = self.textW + (2 * self.padw) + (self.borderSize * 2)
+    self.h = self.textH + (2 * self.padh) + (self.borderSize * 2)
 
-    self.buffer = love.graphics.newCanvas(self.w + 2 * self.padw + self.borderSize * 2, 
-                                          self.h + 2 * self.padh + self.borderSize * 2)
+    self.buffer = love.graphics.newCanvas(self.w, self.h)
 end
 
 -- activates functions accordingly
@@ -42,50 +43,33 @@ function obj:applyFunctionality(mx, my)
     end
 end
 
--- updates button state
-function obj:update(dt, ox, oy)
-    local ox, oy = ox or 0, oy or 0
-    local padx, pady = self.x + ox - self.padw , self.y + oy - self.padh
-    local padw, padh = self.w + self.padw * 2 + (self.borderSize * self.scale), self.h + self.padh * 2 + (self.borderSize * self.scale)
-
-    -- check for update?
-    if not self.show then return end
-    if (padx + padw < 0 or padx > love.graphics.getWidth()) then return end
-    if (pady + padh < 0 or pady > love.graphics.getWidth()) then return end
-
-    -- update object
-    local mx, my = love.mouse.getPosition()
-
-    -- get button state
-    self.hover = PBB(mx, my, padx, pady, padw * self.scale, padh * self.scale)
-    self.pressed = self.hover and love.mouse.isDown(1)
-    local preState = self.state
-    self.state = boolToInt(self.hover) + boolToInt(self.pressed) + 1
-
-    if preState == self.state then return end
-
-    self:applyFunctionality(mx, my)
-
-    -- pre render
+function obj:preRender()
     self.buffer:renderTo(function()
         love.graphics.clear(0, 0, 0, 0)
-        local px, py = self.borderSize, self.borderSize
-        local pw, ph = padw - self.borderSize * self.scale, padh - self.borderSize * self.scale
+
+        -- fill
+        love.graphics.setColor(self.color.fill[self.state])
+        love.graphics.rectangle("fill", self.borderSize / 2, self.borderSize / 2, 
+                                        self.w - self.borderSize, self.h - self.borderSize, 
+                                        self.cornerRadius, self.cornerRadius)
 
         -- border
-        love.graphics.setColor(self.color.border[self.state])
-        love.graphics.rectangle("fill", 0, 0, padw, padh)
+        if self.borderSize > 0 then
+            love.graphics.setLineWidth(self.borderSize)
+            love.graphics.setColor(self.color.border[self.state])
+            love.graphics.rectangle("line", self.borderSize / 2, self.borderSize / 2, 
+                                            self.w - self.borderSize, self.h - self.borderSize, 
+                                            self.cornerRadius, self.cornerRadius)
+        end
 
-        -- inner
-        love.graphics.setColor(self.color.fill[self.state])
-        love.graphics.rectangle("fill", px, py, pw, ph)
+        -- alignment x
+        local px, py = self.borderSize, self.borderSize
+        if self.alignx == "center" then px = (self.w - self.textW) / 2 end
+        if self.alignx == "right"  then px = self.w - self.textW - self.borderSize end
 
-
-        -- alignment
-        if self.alignx == "center" then px = px + self.padw end
-        if self.alignx == "right" then px = px + 2 * self.padw end
-        if self.aligny == "center" then py = py + self.padh end
-        if self.aligny == "bottom" then py = py + 2 * self.padh end
+        -- alignment y
+        if self.aligny == "center" then py = (self.h - self.textH) / 2 end
+        if self.aligny == "bottom" then py = self.h - self.textH - self.borderSize end
 
         -- text
         love.graphics.setColor(self.color.text[self.state])
@@ -95,14 +79,37 @@ function obj:update(dt, ox, oy)
     end)
 end
 
+-- updates button state
+function obj:update(dt, ox, oy)
+    -- check for update?
+    local ox, oy = ox or 0, oy or 0
+
+    -- references
+    local scaledw, scaledh = self.w * self.scale, self.h * self.scale
+
+    -- update object
+    local mx, my = love.mouse.getPosition()
+
+    -- get button state
+    self.hover = PBB(mx, my, self.x + ox, self.y + oy, scaledw, scaledh)
+    self.pressed = self.hover and love.mouse.isDown(1)
+    local preState = self.state
+    self.state = boolToInt(self.hover) + boolToInt(self.pressed) + 1
+
+    if preState == self.state then return end
+
+    self:applyFunctionality(mx, my)
+
+    self:preRender()
+end
+
 -- draws button
 function obj:draw(ox, oy)
     local ox, oy = ox or 0, oy or 0
 
+    -- draw buffer with mask
     love.graphics.setColor(self.color.mask[self.state])
-
-    love.graphics.draw(self.buffer, self.x - self.padw + ox, self.y - self.padh + oy, 0, self.scale, self.scale)
-
+    love.graphics.draw(self.buffer, self.x + ox, self.y + oy, 0, self.scale, self.scale)
     love.graphics.setColor(1, 1, 1, 1)
 end
 

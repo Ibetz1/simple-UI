@@ -16,3 +16,4 @@ ui.tools.baseEnv = require(_PACKAGE .. "baseEnv")
 
 require(_PACKAGE .. "tools")
 require(_PACKAGE .. "logging")
+require(_PACKAGE .. "arr2D")

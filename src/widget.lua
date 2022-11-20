@@ -9,6 +9,28 @@ end
 function widget:show() self.show = true end
 function widget:hide() self.show = false end
 
+-- sets widget position
+function widget:setPosition(x, y)
+    self.x, self.y = x, y
+end
+
+-- aligns widget to tile size
+function widget:alignTile(w, h)
+    local tw = math.floor(love.graphics.getWidth() / w)
+    local th = math.floor(love.graphics.getHeight() / h)
+
+    self.x = math.ceil((self.x / love.graphics.getWidth()) * tw) * w
+    self.y = math.ceil((self.y / love.graphics.getHeight()) * th) * h
+end
+
+-- check if widget off screen
+function widget:onScreen(ox, oy)
+    return ox + self.x + (self.w * self.scale) > 0 and
+           oy + self.y + (self.h * self.scale) > 0 and
+           ox + self.x < love.graphics.getWidth()  and
+           oy + self.y < love.graphics.getHeight()
+end
+
 -- load properties onto widget
 function widget:loadProperties(properties, environment)
 
@@ -32,9 +54,6 @@ end
 function widget:focus(index)
     local index = index or 1
 
-    -- swap index
-
-    -- swap draw order
     ui.map:swapWidgets(index, self.index)
 end
 
