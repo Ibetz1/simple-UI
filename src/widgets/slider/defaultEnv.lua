@@ -7,8 +7,11 @@ return {
     state = -1,
     val = 0,
     boxh = 3,
-    orientation = "horizontal",
+    orientation = ORIENT_HORIZONTAL,
     length = 100,
+
+    showValue = true,
+    showButton = true,
 
     onpress = function(x, y, s)
         if s.pressCount > 0 then return end

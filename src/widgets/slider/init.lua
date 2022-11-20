@@ -46,10 +46,11 @@ end
 
 function obj:preRender()
     self.buffer:renderTo(function()
-        love.graphics.clear(0, 0, 0, 1)
+        love.graphics.clear(self.color.background[self.state])
         
-        love.graphics.setLineWidth(self.borderSize) do
-
+        -- draw track
+        love.graphics.setLineWidth(self.borderSize) 
+            local prog = (self.length * self.val) + self.borderSize
             -- track background
             love.graphics.setColor(self.color.border[self.state])
             love.graphics.line(self.borderSize, self.buffer:getHeight() / 2, 
@@ -57,13 +58,15 @@ function obj:preRender()
 
             -- progress bar
             love.graphics.setColor(self.color.accent[self.state])
-            love.graphics.line(self.borderSize, self.buffer:getHeight() / 2, (self.length * self.val) + self.borderSize, self.buffer:getHeight() / 2)
+            love.graphics.line(self.borderSize, self.buffer:getHeight() / 2, prog, self.buffer:getHeight() / 2)
 
-            -- button
+        love.graphics.setLineWidth(1) 
+
+        -- button
+        if self.showButton then
             love.graphics.setColor(self.color.fill[self.state])
-            love.graphics.circle("fill", (self.length * self.val) + self.borderSize, self.buffer:getHeight() / 2, self.borderSize)
-
-        love.graphics.setLineWidth(1) end
+            love.graphics.circle("fill", prog, self.buffer:getHeight() / 2, self.borderSize)
+        end
     end)
 end
 
@@ -73,8 +76,22 @@ function obj:update(dt, ox, oy)
     -- mouse position
     local mx, my = love.mouse.getPosition()   
 
-    -- get slider state
-    self.hover = PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, self.buffer:getWidth() * self.scale, self.buffer:getHeight() * self.scale)
+    -- get slider state horizontal
+
+    
+    -- get slider state vertical
+    if self.orientation == ORIENT_VERTICAL then
+        self.hover = PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, 
+                                 self.buffer:getHeight() * self.scale, 
+                                 self.buffer:getWidth() * self.scale) 
+    else
+        self.hover = PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, 
+                                 self.buffer:getWidth() * self.scale, 
+                                 self.buffer:getHeight() * self.scale)
+    end
+
+
+
     self.pressed = self.hover and love.mouse.isDown(1)
     local state = self.state
     self.state = boolToInt(self.hover) + boolToInt(self.pressed) + 1
@@ -82,8 +99,17 @@ function obj:update(dt, ox, oy)
     -- get slider value
     self.slide = false
     if self.state == 3 then
-        local dist = mx - (self.x + ox + (self.borderSize) * self.scale)
-        self.val = math.floor(math.max(math.min(dist / (self.length * self.scale), 1), 0) * 1000) / 1000
+        local dist
+
+        -- value based orientation
+        if self.orientation == ORIENT_VERTICAL then
+            dist = my - (self.y + oy + (self.borderSize) * self.scale)
+            self.val = 1 - math.floor(math.max(math.min(dist / (self.length * self.scale), 1), 0) * 1000) / 1000
+        else
+            dist = mx - (self.x + ox + (self.borderSize) * self.scale)
+            self.val = math.floor(math.max(math.min(dist / (self.length * self.scale), 1), 0) * 1000) / 1000
+        end
+
         self.slide = true  
     end
 
@@ -96,10 +122,18 @@ end
 
 -- draw slider
 function obj:draw(ox, oy)
-
     local ox, oy = ox or 0, oy or 0
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.buffer, self.x + ox, self.y + oy, 0, self.scale)
+
+    -- flip and change angle for vertical orientation
+    local angle, scale = 0, self.scale
+    if self.orientation == ORIENT_VERTICAL then 
+        angle = math.pi / 2
+        scale = -self.scale
+        oy = oy + self.w * self.scale
+    end
+
+    love.graphics.draw(self.buffer, self.x + ox, self.y + oy, angle, scale)
 end
 
 

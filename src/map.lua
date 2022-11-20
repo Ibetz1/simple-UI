@@ -5,7 +5,8 @@ function map:init()
     self.gridMap = love.graphics.newCanvas()
     self.widgets = {}
     self.font = love.graphics.getFont()
-    self:setAlignment(1, 1)
+    
+    self:setGridAlignment(1, 1)
 
     self.ox = 0
     self.oy = 0
@@ -26,9 +27,11 @@ function map:addWidget(widget, layer)
     if self.widgets[layer] and layer ~= widget.index then
         self:swapWidgets(widget.index, layer)
     end
+
 end
 
-function map:setAlignment(w, h)
+-- sets map grid alignment
+function map:setGridAlignment(w, h)
     self.gridSpacingX, self.gridSpacingY = w, h
     self.gridTileW, self.gridTileH = math.ceil(self.buffer:getWidth() / self.gridSpacingX), math.ceil(self.buffer:getHeight() / self.gridSpacingY)
 

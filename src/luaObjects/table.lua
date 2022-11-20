@@ -31,7 +31,7 @@ function table.merge(a, b, temp)
     -- merge b with a
     for key, val in pairs(b) do
         -- merge subtables
-        if temp[key] then
+        if temp[key] ~= nil then
             if type(temp[key]) == "table" and type(b[key]) == "table" then
                 temp[key] = table.merge(temp[key], b[key])
             end

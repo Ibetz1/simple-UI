@@ -10,6 +10,10 @@ ALIGN_TOP    = "top"
 ALIGN_RIGHT  = "right"
 ALIGN_BOTTOM = "bottom"
 
+-- object orientation
+ORIENT_HORIZONTAL = "horizontal"
+ORIENT_VERTICAL   = "vertical"
+
 -- ui tools
 ui.tools = {}
 ui.tools.baseEnv = require(_PACKAGE .. "baseEnv")

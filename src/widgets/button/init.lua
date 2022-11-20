@@ -45,7 +45,7 @@ end
 
 function obj:preRender()
     self.buffer:renderTo(function()
-        love.graphics.clear(0, 0, 0, 0)
+        love.graphics.clear(self.color.background[self.state])
 
         -- fill
         love.graphics.setColor(self.color.fill[self.state])
