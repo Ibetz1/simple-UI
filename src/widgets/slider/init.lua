@@ -4,7 +4,6 @@ local env = require(_PACKAGE .. "defaultEnv")
 local obj = object:new(ui.widget)
 
 function obj:init(properties)
-    self:map(properties.layer)
     self:show()
     self:loadProperties(properties, env)
 
@@ -72,18 +71,16 @@ end
 
 -- update slider
 function obj:update(dt, ox, oy)
-
     -- mouse position
     local mx, my = love.mouse.getPosition()   
 
-    -- get slider state horizontal
-
-    
     -- get slider state vertical
     if self.orientation == ORIENT_VERTICAL then
         self.hover = PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, 
                                  self.buffer:getHeight() * self.scale, 
-                                 self.buffer:getWidth() * self.scale) 
+                                 self.buffer:getWidth() * self.scale)
+
+    -- get slider state horizontal
     else
         self.hover = PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, 
                                  self.buffer:getWidth() * self.scale, 

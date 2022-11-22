@@ -1,10 +1,6 @@
 local env = ui.tools.newEnvironment {}
 local widget = object:new()
 
-function widget:map(layer)
-    ui.map:addWidget(self, layer)
-end
-
 -- show / hide widget
 function widget:show() self.show = true end
 function widget:hide() self.show = false end
@@ -15,12 +11,8 @@ function widget:setPosition(x, y)
 end
 
 -- aligns widget to tile size
-function widget:alignTile(w, h)
-    local tw = math.floor(love.graphics.getWidth() / w)
-    local th = math.floor(love.graphics.getHeight() / h)
-
-    self.x = math.ceil((self.x / love.graphics.getWidth()) * tw) * w
-    self.y = math.ceil((self.y / love.graphics.getHeight()) * th) * h
+function widget:snapTile(w, h)
+    self.x, self.y = SNAPVAL(self.x, self.y, w, h)
 end
 
 -- check if widget off screen
@@ -36,7 +28,9 @@ function widget:loadProperties(properties, environment)
 
     -- define property placeholders and apply formatting
     local properties = ui.tools.formatProperties(properties or {})
-    local environment = table.merge(environment or {}, env)
+    local environment = ui.tools.formatProperties(environment or {})
+
+    local environment = table.merge(environment, env)
     local mergedProperties = table.merge(properties, environment)
 
     -- add properties to widget

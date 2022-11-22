@@ -10,11 +10,7 @@ function obj:init(properties)
     self:loadProperties(properties, env)
 
     -- custom properties
-    self.textW = properties.w or self.font:getWidth(self.text)
-    self.textH = properties.h or self.font:getHeight(self.text)
-    self.w = self.textW + (2 * self.padw) + (self.borderSize * 2)
-    self.h = self.textH + (2 * self.padh) + (self.borderSize * 2)
-
+    self.val = false
     self.buffer = love.graphics.newCanvas(self.w, self.h)
 end
 
@@ -29,6 +25,7 @@ function obj:applyFunctionality(mx, my)
     elseif self.pressCount > 0 and not self.pressed then
         self.onrelease(mx, my, self)
         self.pressCount = 0
+        self.val = not self.val
     else
         self.pressCount = 0
     end
@@ -52,6 +49,14 @@ function obj:preRender()
                                         self.w - self.borderSize, self.h - self.borderSize, 
                                         self.cornerRadius, self.cornerRadius)
 
+        -- checked
+        if self.val == true then
+            love.graphics.setColor(self.color.accent[self.state])
+            love.graphics.rectangle("fill", self.borderSize / 2, self.borderSize / 2, 
+                                            self.w - self.borderSize, self.h - self.borderSize, 
+                                            self.cornerRadius, self.cornerRadius)
+        end
+
         -- border
         if self.borderSize > 0 then
             love.graphics.setLineWidth(self.borderSize)
@@ -61,18 +66,7 @@ function obj:preRender()
                                             self.cornerRadius, self.cornerRadius)
         end
 
-        -- alignment x
-        local px, py = self.borderSize, self.borderSize
-        if self.alignx == "center" then px = (self.w - self.textW) / 2 end
-        if self.alignx == "right"  then px = self.w - self.textW - self.borderSize end
 
-        -- alignment y
-        if self.aligny == "center" then py = (self.h - self.textH) / 2 end
-        if self.aligny == "bottom" then py = self.h - self.textH - self.borderSize end
-
-        -- text
-        love.graphics.setColor(self.color.text[self.state])
-        love.graphics.print(self.text, px, py, 0)
 
         love.graphics.setColor(1, 1, 1, 1)
     end)
@@ -112,5 +106,5 @@ function obj:draw(ox, oy)
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-ui.logging.log("UI >> Widgets >> button object created", "notification")
+ui.logging.log("UI >> Widgets >> checkbox object created", "notification")
 return obj

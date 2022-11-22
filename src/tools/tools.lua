@@ -1,3 +1,45 @@
+-- access colors via
+
+-- [text]
+-- textColorIdle = mode {color}
+-- textColorHover = mode {color}
+-- textColorPressed = mode {color}
+
+-- [mask]
+-- maskColorIdle = mode {color}
+-- maskColorHover = mode {color}
+-- maskColorPressed = mode {color}
+
+-- [fill]
+-- fillColorIdle = mode {color}
+-- fillColorHover = mode {color}
+-- fillColorPressed = mode {color}
+
+-- [border]
+-- borderColorIdle = mode {color}
+-- borderColorHover = mode {color}
+-- borderColorPressed = mode {color}
+
+-- [accent]
+-- accentColorIdle = mode {color}
+-- accentColorHover = mode {color}
+-- accentColorPressed = mode {color}
+
+-- rgb color mode
+function rgba(t) return t end
+function hsva(t)
+    local h, s, v, a = t[1], t[2], t[3], t[4]
+
+    local k1 = v * (1 - s)
+    local k2 = v - k1
+
+    local r = k1 + k2 * clamp(3 * math.abs( ((( h - 000) / 180) % 2)- 1 ) - 1, 0, 1)
+    local g = k1 + k2 * clamp(3 * math.abs( ((( h - 120) / 180) % 2)- 1 ) - 1, 0, 1)
+    local b = k1 + k2 * clamp(3 * math.abs( ((( h - 240) / 180) % 2)- 1 ) - 1, 0, 1)
+    return {r, g, b, a}
+end
+
+-- format property aliasing
 function ui.tools.formatProperties(properties)
 
     -- format color properties

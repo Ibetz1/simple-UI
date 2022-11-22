@@ -5,19 +5,23 @@ return {
     pressCount = 0,
     state = -1,
     cornerRadius = 0,
-    font = love.graphics.getFont(),
+    w = 32, h = 32,
+
+    accentColorIdle = rgba {0.2, 0.2, 0.2, 1},
+    accentColorHover = rgba {0.2, 0.2, 0.2, 1},
+    accentColorPressed = rgba {0.2, 0.2, 0.2, 1},
 
     onhover = function(x, y, b)
         if b.hoverCount > 0 then return end
-        ui.logging.log("button hovered!")
+        ui.logging.log("check box hovered!")
     end,
 
     onpress = function(x, y, b)
         if b.pressCount > 0 then return end
-        ui.logging.log("button pressed!")
+        ui.logging.log("check box pressed!")
     end,
 
     onrelease = function(x, y, b)
-        ui.logging.log("button released!")
+        ui.logging.log("check box released!")
     end
 }

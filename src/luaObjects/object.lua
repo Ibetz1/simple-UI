@@ -11,8 +11,9 @@ function object:draw() end
 function object:new(parent)
     local cls = table.deepcopy(parent or {}, {})
 
+    cls.__type   = "luaobject"
     cls.__parent = parent
-    cls.__index = cls
+    cls.__index  = cls
 
     setmetatable(cls, self)
     return cls

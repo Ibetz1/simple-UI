@@ -1,6 +1,5 @@
-----------------
--- ui logging --
-----------------
+-- ui logging utility --
+------------------------
 
 UI_LOGGING_LINECOUNT = 10
 UI_LOGGING_FONT = love.graphics.getFont()
@@ -92,4 +91,5 @@ function ui.logging:render()
     -- draw log box
     love.graphics.setColor(1, 1, 1, (1 - logDisableTimer) / (logTimerMax))
     love.graphics.draw(self.logBox, 0, love.graphics.getHeight() - self.logBox:getHeight())
+    love.graphics.setColor(1, 1, 1, 1)
 end

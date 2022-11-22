@@ -4,8 +4,6 @@ local env = require(_PACKAGE .. "defaultEnv")
 local obj = object:new(ui.widget)
 
 function obj:init(properties)
-
-    self:map(properties.layer)
     self:show()
     self:loadProperties(properties, env)
 
