@@ -4,62 +4,70 @@ local function pressed(x, y, b)
     ui.logging.log("pressed!")
 end
 
-__scene {
-    name = "scene1",
+local function toggle(x, y, b)
+    b.parent.enabled = b.val
+end
 
-    c1 = ui.checkBox {
-        x = 500,
-        y = 60,
+local slider = ui.slider {
+    x = 50,
+    y = 20,
+    scale = 3,
+    borderSize = 2,
+    length = 120,
+    snap = false,
+    box = ui.checkBox {
+        scale = 2,
         cornerRadius = 10,
-        borderSize = 3,
-    },
-    
-    s1 = ui.slider {
-        x = 50,
-        y = 60,
-        scale = 2,
-        borderSize = 2,
-        length = 120,
-    },
-    
-    s2 = ui.slider {
-        x = 50,
-        y = 81,
-        scale = 2,
-        borderSize = 2,
-        length = 120,
-    },
-    
-    b1 = ui.button {
-        text = "button 1",
-        scale = 2,
-        x = 50,
-        y = 120,
-        padw = 3,
-        padh = 2,
         borderSize = 1,
-        cornerRadius = 5
-    },
-    
-    b2 = ui.button {
-        text = "Button 2",
-        scale = 2,
-        x = 200,
-        y = 120,
-        padw = 2,
-        padh = 2,
-        borderSize = 0
-    }
+        snap = true,
+        onpress = toggle,
+        x = ALIGN_LEFT,
+        y = ALIGN_CENTER,
+        offx = 5,
+        alignMode = ALIGN_OUTSIDE,
+        snap = false
+    }    
 }
 
-ui.setScene("scene1")
+local button = ui.button {
+    text = "button 1",
+    scale = 2,
+    padw = 3,
+    padh = 2,
+    borderSize = 1,
+    cornerRadius = 5,
+    snap = false,
+    box = ui.checkBox {
+        scale = 2,
+        cornerRadius = 10,
+        borderSize = 1,
+        snap = true,
+        onpress = toggle,
+        x = ALIGN_LEFT,
+        y = ALIGN_CENTER,
+        offx = 5,
+        alignMode = ALIGN_OUTSIDE,
+        snap = false
+    } 
+}
+
+local g = ui.__tags.container {
+    snapx = 8,
+    snapy = 8,
+    s1 = slider,
+    s2 = slider { y = 70 },
+    b1 = button { x = 50, y = 130 },
+    b2 = button { x = 50, y = 190, text = "button 2"}
+}
+
 
 function love.update(dt)
-    ui.__update()
+    g:updateChildren(dt)
 end
 
 function love.draw()
-    ui.__draw()
+    g:renderChildren()
+    ui.logging:render()
 end
 
 function love.keyreleased(key)

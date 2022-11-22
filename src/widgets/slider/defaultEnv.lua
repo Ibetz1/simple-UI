@@ -9,6 +9,8 @@ return {
     boxh = 3,
     orientation = ORIENT_HORIZONTAL,
     length = 100,
+    buttonRadius = 0,
+    barRadius = 0,
 
     showValue = true,
     showButton = true,

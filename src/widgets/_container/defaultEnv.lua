@@ -8,6 +8,7 @@ return {
     map = nil,
 
     -- default colors
+    disabledOpacity = 0.25,
     color = {
         text = {
             rgba {0, 0, 0, 1},
@@ -34,6 +35,7 @@ return {
             rgba {1, 1, 1, 0.5}, -- hover
             rgba {1, 1, 1, 0.5}, -- pressed
         },
+
         background = {
             rgba {0, 0, 0, 0},
             rgba {0, 0, 0, 0},
@@ -50,9 +52,13 @@ return {
 
     -- default alignment
     alignx = ALIGN_CENTER, aligny = ALIGN_CENTER,
+    alignMode = ALIGN_OUTSIDE,
+    snapx = 8, snapy = 8,
+    offx = 0, offy = 0,
 
     -- default values
     show = true,
+    enabled = true,
     val = 0,
-    text = "text",
+    text = "text"
 }

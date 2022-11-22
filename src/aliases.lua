@@ -1,13 +1,15 @@
 -- aliases --
 -------------
 
--- object alignment
-ALIGN_CENTER = "center"
-ALIGN_LEFT   = "left"
-ALIGN_TOP    = "top"
-ALIGN_RIGHT  = "right"
-ALIGN_BOTTOM = "bottom"
+-- alignment aliases
+ALIGN_CENTER = uuid()
+ALIGN_RIGHT  = uuid()
+ALIGN_LEFT   = uuid()
+ALIGN_TOP    = uuid()
+ALIGN_BOTTOM = uuid()
 
--- object orientation
-ORIENT_HORIZONTAL = "horizontal"
-ORIENT_VERTICAL   = "vertical"
+ALIGN_OUTSIDE = uuid()
+ALIGN_INSIDE  = uuid()
+
+ORIENT_VERTICAL   = uuid()
+ORIENT_HORIZONTAL = uuid()

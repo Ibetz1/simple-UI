@@ -6,6 +6,7 @@ return {
     state = -1,
     cornerRadius = 0,
     font = love.graphics.getFont(),
+    alignMode = INSIDE_ALIGN,
 
     onhover = function(x, y, b)
         if b.hoverCount > 0 then return end

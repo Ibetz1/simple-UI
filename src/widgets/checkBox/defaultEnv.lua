@@ -5,7 +5,7 @@ return {
     pressCount = 0,
     state = -1,
     cornerRadius = 0,
-    w = 32, h = 32,
+    w = 16, h = 16,
 
     accentColorIdle = rgba {0.2, 0.2, 0.2, 1},
     accentColorHover = rgba {0.2, 0.2, 0.2, 1},

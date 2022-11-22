@@ -1,7 +1,7 @@
 -- object and environment
 local _PACKAGE = string.gsub(...,"%.","/") .. "/" or ""
 local env = require(_PACKAGE .. "defaultEnv")
-local obj = object:new(ui.widget)
+local obj = object:new(ui.__tags.container)
 
 function obj:init(properties)
     self:show()
@@ -12,10 +12,13 @@ function obj:init(properties)
 
     self.buffer = love.graphics.newCanvas(self.length + 2 * self.borderSize, self.boxh)
     self.w, self.h = self.buffer:getWidth(), self.buffer:getHeight()
+
+    self:loadChildren()
 end
 
 -- activates functions accordingly
 function obj:applyFunctionality(mx, my)
+    
     -- activate button onpress
     if self.pressed then
         self.onpress(mx, my, self)
@@ -58,8 +61,7 @@ function obj:preRender()
             -- progress bar
             love.graphics.setColor(self.color.accent[self.state])
             love.graphics.line(self.borderSize, self.buffer:getHeight() / 2, prog, self.buffer:getHeight() / 2)
-
-        love.graphics.setLineWidth(1) 
+        love.graphics.setLineWidth(0) 
 
         -- button
         if self.showButton then
@@ -74,43 +76,46 @@ function obj:update(dt, ox, oy)
     -- mouse position
     local mx, my = love.mouse.getPosition()   
 
-    -- get slider state vertical
-    if self.orientation == ORIENT_VERTICAL then
-        self.hover = PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, 
-                                 self.buffer:getHeight() * self.scale, 
-                                 self.buffer:getWidth() * self.scale)
-
-    -- get slider state horizontal
-    else
-        self.hover = PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, 
-                                 self.buffer:getWidth() * self.scale, 
-                                 self.buffer:getHeight() * self.scale)
-    end
-
-
-
-    self.pressed = self.hover and love.mouse.isDown(1)
-    local state = self.state
-    self.state = boolToInt(self.hover) + boolToInt(self.pressed) + 1
-
-    -- get slider value
-    self.slide = false
-    if self.state == 3 then
-        local dist
-
-        -- value based orientation
+    if self.enabled or self.state < 1 then
+        -- get slider state vertical
         if self.orientation == ORIENT_VERTICAL then
-            dist = my - (self.y + oy + (self.borderSize) * self.scale)
-            self.val = 1 - math.floor(math.max(math.min(dist / (self.length * self.scale), 1), 0) * 1000) / 1000
+            self.hover = ui.tools.PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, 
+                                    self.buffer:getHeight() * self.scale, 
+                                    self.buffer:getWidth() * self.scale)
+
+        -- get slider state horizontal
         else
-            dist = mx - (self.x + ox + (self.borderSize) * self.scale)
-            self.val = math.floor(math.max(math.min(dist / (self.length * self.scale), 1), 0) * 1000) / 1000
+            self.hover = ui.tools.PBB(mx, my, self.x + ox - self.borderSize, self.y + oy, 
+                                    self.buffer:getWidth() * self.scale, 
+                                    self.buffer:getHeight() * self.scale)
         end
 
-        self.slide = true  
-    end
+        self.pressed = self.hover and love.mouse.isDown(1)
+        local state = self.state
+        self.state = ui.tools.boolToInt(self.hover) + ui.tools.boolToInt(self.pressed) + 1
 
-    self:applyFunctionality(mx, my)
+        -- get slider value
+        self.slide = false
+        if self.state == 3 then
+            local dist
+
+            -- value based orientation
+            if self.orientation == ORIENT_VERTICAL then
+                dist = my - (self.y + oy + (self.borderSize) * self.scale)
+                self.val = 1 - math.floor(math.max(math.min(dist / (self.length * self.scale), 1), 0) * 1000) / 1000
+            else
+                dist = mx - (self.x + ox + (self.borderSize) * self.scale)
+                self.val = math.floor(math.max(math.min(dist / (self.length * self.scale), 1), 0) * 1000) / 1000
+            end
+
+            self.slide = true  
+        end
+
+        self:applyFunctionality(mx, my)
+    else
+        self.slide = false
+        self.state = 1
+    end
 
     -- check if actually needs to re-render
     if state ~= -1 and self.state == 1 and state == self.state then return end
@@ -120,7 +125,6 @@ end
 -- draw slider
 function obj:draw(ox, oy)
     local ox, oy = ox or 0, oy or 0
-    love.graphics.setColor(1, 1, 1, 1)
 
     -- flip and change angle for vertical orientation
     local angle, scale = 0, self.scale
@@ -130,7 +134,10 @@ function obj:draw(ox, oy)
         oy = oy + self.w * self.scale
     end
 
+    local alpha = ui.tools.getMaskOpacity(self.enabled, self.disabledOpacity, self.color.mask[self.state])
+    love.graphics.setColor(self.color.mask[self.state][1], self.color.mask[self.state][2], self.color.mask[self.state][3], alpha)
     love.graphics.draw(self.buffer, self.x + ox, self.y + oy, angle, scale)
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 

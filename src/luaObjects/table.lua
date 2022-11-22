@@ -42,5 +42,12 @@ function table.merge(a, b, temp)
         end
     end
 
+    -- merge meta data
+    if getmetatable(a) and getmetatable(b) then
+        setmetatable(temp, table.merge(
+            getmetatable(a), getmetatable(b)
+        ))
+    end
+
     return temp
 end

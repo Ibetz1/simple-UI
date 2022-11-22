@@ -11,9 +11,9 @@ function hsva(t)
     local k1 = v * (1 - s)
     local k2 = v - k1
 
-    local r = k1 + k2 * clamp(3 * math.abs( ((( h - 000) / 180) % 2)- 1 ) - 1, 0, 1)
-    local g = k1 + k2 * clamp(3 * math.abs( ((( h - 120) / 180) % 2)- 1 ) - 1, 0, 1)
-    local b = k1 + k2 * clamp(3 * math.abs( ((( h - 240) / 180) % 2)- 1 ) - 1, 0, 1)
+    local r = k1 + k2 * math.clamp(3 * math.abs( ((( h - 000) / 180) % 2)- 1 ) - 1, 0, 1)
+    local g = k1 + k2 * math.clamp(3 * math.abs( ((( h - 120) / 180) % 2)- 1 ) - 1, 0, 1)
+    local b = k1 + k2 * math.clamp(3 * math.abs( ((( h - 240) / 180) % 2)- 1 ) - 1, 0, 1)
     return {r, g, b, a}
 end
 

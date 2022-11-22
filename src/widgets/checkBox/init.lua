@@ -1,7 +1,7 @@
 -- object and environment
 local _PACKAGE = string.gsub(...,"%.","/") .. "/" or ""
 local env = require(_PACKAGE .. "defaultEnv")
-local obj = object:new(ui.widget)
+local obj = object:new(ui.__tags.container)
 
 function obj:init(properties)
 
@@ -12,6 +12,8 @@ function obj:init(properties)
     -- custom properties
     self.val = false
     self.buffer = love.graphics.newCanvas(self.w, self.h)
+
+    self:loadChildren()
 end
 
 -- activates functions accordingly
@@ -66,8 +68,6 @@ function obj:preRender()
                                             self.cornerRadius, self.cornerRadius)
         end
 
-
-
         love.graphics.setColor(1, 1, 1, 1)
     end)
 end
@@ -84,15 +84,17 @@ function obj:update(dt, ox, oy)
     local mx, my = love.mouse.getPosition()
 
     -- get button state
-    self.hover = PBB(mx, my, self.x + ox, self.y + oy, scaledw, scaledh)
-    self.pressed = self.hover and love.mouse.isDown(1)
-    local preState = self.state
-    self.state = boolToInt(self.hover) + boolToInt(self.pressed) + 1
+    if self.enabled or self.state < 1 then
+        self.hover = ui.tools.PBB(mx, my, self.x + ox, self.y + oy, scaledw, scaledh)
+        self.pressed = self.hover and love.mouse.isDown(1)
+        local preState = self.state
+        self.state = ui.tools.boolToInt(self.hover) + ui.tools.boolToInt(self.pressed) + 1
 
-    if preState == self.state then return end
+        if preState == self.state then return end
 
-    self:applyFunctionality(mx, my)
-
+        self:applyFunctionality(mx, my)
+    end
+    
     self:preRender()
 end
 
@@ -101,7 +103,9 @@ function obj:draw(ox, oy)
     local ox, oy = ox or 0, oy or 0
 
     -- draw buffer with mask
-    love.graphics.setColor(self.color.mask[self.state])
+    local alpha = ui.tools.getMaskOpacity(self.enabled, self.disabledOpacity, self.color.mask[self.state])
+    love.graphics.setColor(self.color.mask[self.state][1], self.color.mask[self.state][2], self.color.mask[self.state][3], alpha)
+
     love.graphics.draw(self.buffer, self.x + ox, self.y + oy, 0, self.scale, self.scale)
     love.graphics.setColor(1, 1, 1, 1)
 end

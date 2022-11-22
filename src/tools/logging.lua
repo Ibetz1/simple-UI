@@ -12,7 +12,7 @@ ui.logging = {
     logs = {}
 }
 
-local logDisableTimer = 1 - boolToInt(ui.logging.enabled) + 0.0001
+local logDisableTimer = 1 - ui.tools.boolToInt(ui.logging.enabled) + 0.0001
 local logTimerMax = 1
 
 -- log a message

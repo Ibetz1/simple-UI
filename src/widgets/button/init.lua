@@ -1,10 +1,9 @@
 -- object and environment
 local _PACKAGE = string.gsub(...,"%.","/") .. "/" or ""
 local env = require(_PACKAGE .. "defaultEnv")
-local obj = object:new(ui.widget)
+local obj = object:new(ui.__tags.container)
 
 function obj:init(properties)
-
     -- initiate widget
     self:show()
     self:loadProperties(properties, env)
@@ -16,6 +15,8 @@ function obj:init(properties)
     self.h = self.textH + (2 * self.padh) + (self.borderSize * 2)
 
     self.buffer = love.graphics.newCanvas(self.w, self.h)
+
+    self:loadChildren()
 end
 
 -- activates functions accordingly
@@ -63,12 +64,12 @@ function obj:preRender()
 
         -- alignment x
         local px, py = self.borderSize, self.borderSize
-        if self.alignx == "center" then px = (self.w - self.textW) / 2 end
-        if self.alignx == "right"  then px = self.w - self.textW - self.borderSize end
+        if self.alignx == ALIGN_CENTER then px = (self.w - self.textW) / 2 end
+        if self.alignx == ALIGN_RIGHT  then px = self.w - self.textW - self.borderSize end
 
         -- alignment y
-        if self.aligny == "center" then py = (self.h - self.textH) / 2 end
-        if self.aligny == "bottom" then py = self.h - self.textH - self.borderSize end
+        if self.aligny == ALIGN_CENTER then py = (self.h - self.textH) / 2 end
+        if self.aligny == ALIGN_BOTTOM then py = self.h - self.textH - self.borderSize end
 
         -- text
         love.graphics.setColor(self.color.text[self.state])
@@ -89,15 +90,16 @@ function obj:update(dt, ox, oy)
     -- update object
     local mx, my = love.mouse.getPosition()
 
-    -- get button state
-    self.hover = PBB(mx, my, self.x + ox, self.y + oy, scaledw, scaledh)
-    self.pressed = self.hover and love.mouse.isDown(1)
-    local preState = self.state
-    self.state = boolToInt(self.hover) + boolToInt(self.pressed) + 1
+    if self.enabled or self.state < 1 then
+        -- get button state
+        self.hover = ui.tools.PBB(mx, my, self.x + ox, self.y + oy, scaledw, scaledh)
+        self.pressed = self.hover and love.mouse.isDown(1)
+        local preState = self.state
+        self.state = ui.tools.boolToInt(self.hover) + ui.tools.boolToInt(self.pressed) + 1
 
-    if preState == self.state then return end
-
-    self:applyFunctionality(mx, my)
+        if preState == self.state then return end
+        self:applyFunctionality(mx, my)
+    end
 
     self:preRender()
 end
@@ -107,7 +109,9 @@ function obj:draw(ox, oy)
     local ox, oy = ox or 0, oy or 0
 
     -- draw buffer with mask
-    love.graphics.setColor(self.color.mask[self.state])
+    local alpha = ui.tools.getMaskOpacity(self.enabled, self.disabledOpacity, self.color.mask[self.state])
+    love.graphics.setColor(self.color.mask[self.state][1], self.color.mask[self.state][2], self.color.mask[self.state][3], alpha)
+
     love.graphics.draw(self.buffer, self.x + ox, self.y + oy, 0, self.scale, self.scale)
     love.graphics.setColor(1, 1, 1, 1)
 end

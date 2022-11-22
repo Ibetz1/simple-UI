@@ -25,20 +25,6 @@
 -- accentColorHover = mode {color}
 -- accentColorPressed = mode {color}
 
--- rgb color mode
-function rgba(t) return t end
-function hsva(t)
-    local h, s, v, a = t[1], t[2], t[3], t[4]
-
-    local k1 = v * (1 - s)
-    local k2 = v - k1
-
-    local r = k1 + k2 * clamp(3 * math.abs( ((( h - 000) / 180) % 2)- 1 ) - 1, 0, 1)
-    local g = k1 + k2 * clamp(3 * math.abs( ((( h - 120) / 180) % 2)- 1 ) - 1, 0, 1)
-    local b = k1 + k2 * clamp(3 * math.abs( ((( h - 240) / 180) % 2)- 1 ) - 1, 0, 1)
-    return {r, g, b, a}
-end
-
 -- format property aliasing
 function ui.tools.formatProperties(properties)
 
@@ -77,8 +63,103 @@ function ui.tools.formatProperties(properties)
     return properties
 end
 
--- generate a new environment with modified values
-function ui.tools.newEnvironment(menv, denv)
-    local env = table.merge(menv or {}, denv or ui.tools.baseEnv)
-    return env
+-- align an objects coords with its parents
+function ui.tools.alignObject(obj, parent)
+    local x, y = obj.x, obj.y
+    local pw, ph = parent.w * parent.scale, parent.h * parent.scale
+    local ow, oh = obj.w * obj.scale, obj.h * obj.scale
+
+    -- assert alignmode
+    if obj.alignMode ~= ALIGN_OUTSIDE and obj.alignMode ~= ALIGN_OUTSIDE then object.alignMode = parent.alignMode end
+
+    -- center alignment
+    if obj.x == ALIGN_CENTER then x = (pw / 2) - (ph / 2) + obj.offx end
+    if obj.y == ALIGN_CENTER then y = (ph / 2) - (oh / 2) + obj.offy end
+
+    -- bottom alignment
+    if obj.y == ALIGN_BOTTOM then
+        if obj.alignMode == ALIGN_OUTSIDE then y = ph      end
+        if obj.alignMode == ALIGN_INSIDE  then y = ph - oh end
+        y = y + obj.offy
+    end
+
+    -- top alignment
+    if obj.y == ALIGN_TOP then
+        if obj.alignMode == ALIGN_OUTSIDE then y = -oh end
+        if obj.alignMode == ALIGN_INSIDE  then y = 0   end
+        y = y - obj.offy
+    end
+
+    -- left alignment
+    if obj.x == ALIGN_LEFT then
+        if obj.alignMode == ALIGN_OUTSIDE then x = -ow end
+        if obj.alignMode == ALIGN_INSIDE  then x = 0   end
+        x = x - obj.offx
+    end
+
+    -- right alignment
+    if obj.x == ALIGN_RIGHT then
+        if obj.alignMode == ALIGN_OUTSIDE then x = pw      end
+        if obj.alignMode == ALIGN_INSIDE  then x = pw - ow end
+        x = x + obj.offx
+    end
+
+    return x, y
+end
+
+-- convert bool to int
+function ui.tools.boolToInt(b)
+    if b == true then return 1 end
+    return 0
+end
+
+-- point in box check
+function ui.tools.PBB(x, y, x1, y1, w1, h1)
+    return x > x1 and x < x1 + w1 and y > y1 and y < y1 + h1
+end
+
+-- point in circle check
+function ui.tools.PCC(x, y, x1, y1, r) 
+    return ((x1 - x) ^ 2 + (y1 - y) ^ 2) ^ 0.5 < r
+end
+
+-- snap coord to grid
+function ui.tools.snapCoords(x, y, w, h)
+    local tw, th = love.graphics.getWidth() / w, love.graphics.getHeight() / h
+    local sw, sh = love.graphics.getWidth(), love.graphics.getHeight()
+
+    local tx, ty = math.ceil((x / sw) * tw) * w, math.ceil((y / sh) * th) * h
+    return tx, ty
+end
+
+-- tags a table for instansiation
+function ui.tools.tagTable(tag)
+    return function(p)
+        p.__tag = tag
+
+        function p:__call(t)
+            local temp = table.merge(t, self)
+            return temp
+        end
+
+        setmetatable(p, p)
+
+        return p 
+    end
+end
+
+-- gets opacity of object mask
+function ui.tools.getMaskOpacity(enabled, opacity, mask)
+    local _, _, _, a = unpack(mask)
+
+    if enabled then
+        return a
+    end
+
+    return opacity
+end
+
+-- math.clamp function
+function math.clamp(val, min, max)
+    return math.min(math.max(val, min), max)
 end
