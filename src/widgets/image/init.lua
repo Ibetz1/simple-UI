@@ -1,19 +1,15 @@
 -- object and environment
 local _PACKAGE = string.gsub(...,"%.","/") .. "/" or ""
-local env = require(_PACKAGE .. "defaultEnv")
-local obj = object:new(ui.__tags.container)
+local obj = object:new(ui.__tags.container, env)
 
 function obj:init(properties)
-    self:show()
-    self:loadProperties(properties, env)
+    self.show = true
 
     -- custom properties
     self.image =   properties.image or love.graphics.newCanvas()
     self.w = self.image:getWidth()
     self.h = self.image:getHeight()
     self.angle =  properties.angle or 0
-
-    self:loadChildren()
 end
 
 function obj:update(dt, ox, oy)

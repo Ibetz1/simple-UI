@@ -35,7 +35,6 @@ return {
             rgba {1, 1, 1, 0.5}, -- hover
             rgba {1, 1, 1, 0.5}, -- pressed
         },
-
         background = {
             rgba {0, 0, 0, 0},
             rgba {0, 0, 0, 0},
@@ -53,7 +52,7 @@ return {
     -- default alignment
     alignx = ALIGN_CENTER, aligny = ALIGN_CENTER,
     alignMode = ALIGN_OUTSIDE,
-    snapx = 8, snapy = 8,
+    snapx = 16, snapy = 16,
     offx = 0, offy = 0,
 
     -- default values

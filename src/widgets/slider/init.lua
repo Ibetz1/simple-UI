@@ -1,19 +1,16 @@
 -- object and environment
 local _PACKAGE = string.gsub(...,"%.","/") .. "/" or ""
 local env = require(_PACKAGE .. "defaultEnv")
-local obj = object:new(ui.__tags.container)
+local obj = object:new(ui.__tags.container, env)
 
 function obj:init(properties)
-    self:show()
-    self:loadProperties(properties, env)
+    self.show = true
 
     -- custom properties
     self.boxh = self.boxh * self.borderSize
 
     self.buffer = love.graphics.newCanvas(self.length + 2 * self.borderSize, self.boxh)
     self.w, self.h = self.buffer:getWidth(), self.buffer:getHeight()
-
-    self:loadChildren()
 end
 
 -- activates functions accordingly

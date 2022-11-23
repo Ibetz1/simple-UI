@@ -1,13 +1,16 @@
 -- object and environment
 local _PACKAGE = string.gsub(...,"%.","/") .. "/" or ""
 local env = require(_PACKAGE .. "defaultEnv")
-local obj = object:new(ui.__tags.container)
+local obj = object:new(ui.__tags.container, env)
+
+
+function obj:load(properties)
+end
 
 function obj:init(properties)
     -- initiate widget
-    self:show()
-    self:loadProperties(properties, env)
-
+    self.show = true
+    
     -- custom properties
     self.textW = properties.w or self.font:getWidth(self.text)
     self.textH = properties.h or self.font:getHeight(self.text)
@@ -15,8 +18,6 @@ function obj:init(properties)
     self.h = self.textH + (2 * self.padh) + (self.borderSize * 2)
 
     self.buffer = love.graphics.newCanvas(self.w, self.h)
-
-    self:loadChildren()
 end
 
 -- activates functions accordingly
@@ -42,6 +43,8 @@ function obj:applyFunctionality(mx, my)
         self.hoverCount = 0
     end
 end
+
+function obj:loadChildren() end
 
 function obj:preRender()
     self.buffer:renderTo(function()

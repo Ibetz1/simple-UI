@@ -1,30 +1,24 @@
 local _PACKAGE = string.gsub(...,"%.","/") .. "/" or ""
 env = require(_PACKAGE .. "defaultEnv")
-local obj = object:new(ui.__tags.container)
+local obj = object:new(ui.__tags.container, env)
 
-function obj:init(properties)
-    self:loadProperties(properties)
-    self:loadChildren()
-end
+-- for initializing properties
+function obj:preInit(properties)
 
--- load properties onto widget
-function obj:loadProperties(properties, environment)
-    
     -- define property placeholders and apply formatting
-    local properties = ui.tools.formatProperties(properties or {})
-    local environment = ui.tools.formatProperties(environment or {})
+    local properties  = ui.tools.formatProperties(properties or {})
+    local environment = ui.tools.formatProperties(self.__env or {})
 
-    properties  = table.deepcopy(properties)
-    env         = table.deepcopy(env)
-    environment = table.deepcopy(environment)
+    local meta      = getmetatable(properties)
+    if meta then meta = meta.__baseEnv end
 
-    local environment = table.merge(environment, env)
-    local mergedProperties = table.merge(properties, environment)
+    local environment = table.add(environment, env)
+    local baseEnv = table.add(properties, environment)
 
     -- initialize properties
     self.childrenTemp = {}
     self.children = {}
-    for k, v in pairs(mergedProperties) do
+    for k, v in pairs(baseEnv) do
 
         -- check for valid widget
         if type(v) == "table" and v.__tag and ui.__tags[v.__tag] then
@@ -32,54 +26,32 @@ function obj:loadProperties(properties, environment)
         else
             self[k] = v
         end
+
     end
 
     -- scale properties accordingly
     self.padw = self.padw * self.scale
     self.padh = self.padh * self.scale
     self.borderSize = self.borderSize * self.scale
-
-    -- initiation values
-    self.propertiesLoaded = true
-    self.childrenLoaded = false
 end
 
--- post initiation (for children)
-function obj:postInit(parent)
-    if self.snap == true then self:snapTile() end
-    self.parent = parent
-
-    self.x, self.y = ui.tools.alignObject(self, parent)
-end
-
--- load children into container
-function obj:loadChildren()
+-- for initializing children
+function obj:postInit()
 
     -- construct children
     for i = 1, #self.childrenTemp do
+        -- instasiate children relative to parent
         local child = self.childrenTemp[i]
+
         local inst = ui.__tags[child.__tag](child)
-        inst:postInit(self)
+        inst.parent = self
+        if inst.snap == true then inst:snapTile() end
+        inst.x, inst.y = ui.tools.alignObject(inst)
+
         table.insert(self.children, inst)
     end
-    self.childrenTemp = nil
-    
-    -- merge rendering process for children
-    local oupdate = self.update
-    function self:update(...)
-        oupdate(self, ...)
-        self:updateChildren(...)
-    end
-
-    local odraw = self.draw
-    function self:draw(...)
-        odraw(self, ...)
-        self:renderChildren(...)
-    end
-
-    self.childrenLoaded = true
+    self.childrenTemp = {}
 end
-
 
 -- check if widget off screen
 function obj:onScreen(ox, oy)
@@ -93,6 +65,7 @@ end
 function obj:updateChildren(dt)
     for id, inst in pairs(self.children) do
         inst:update(dt, self.x, self.y)
+        inst:updateChildren(dt)
     end
 end
 
@@ -100,12 +73,9 @@ end
 function obj:renderChildren()
     for id, inst in pairs(self.children) do
         inst:draw(self.x, self.y)
+        inst:renderChildren(dt)
     end
 end
-
--- utilities
-function obj:show() self.show = true end
-function obj:hide() self.show = false end
 
 -- sets group position
 function obj:setPosition(x, y) self.x, self.y = x, y end

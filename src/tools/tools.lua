@@ -29,12 +29,13 @@
 function ui.tools.formatProperties(properties)
 
     -- format color properties
-    properties.color = {
+    properties.color = properties.color or {
         text = {},
         mask = {},
         fill = {}, 
         border = {}, 
-        accent = {}
+        accent = {},
+        background = {}
     }
 
     -- reformat color indexing
@@ -45,18 +46,20 @@ function ui.tools.formatProperties(properties)
         if i == 3 then ext = "Pressed" end
 
         -- translate aliasing
-        properties.color.text[i]   = properties["textColor" .. ext]
-        properties.color.mask[i]   = properties["maskColor" .. ext]
-        properties.color.fill[i]   = properties["fillColor"  .. ext]
-        properties.color.border[i] = properties["borderColor".. ext]
-        properties.color.accent[i] = properties["accentColor".. ext]
+        properties.color.text[i]       = properties["textColor" .. ext]
+        properties.color.mask[i]       = properties["maskColor" .. ext]
+        properties.color.fill[i]       = properties["fillColor"  .. ext]
+        properties.color.border[i]     = properties["borderColor".. ext]
+        properties.color.accent[i]     = properties["accentColor".. ext]
+        properties.color.background[i] = properties["backgroundColor".. ext]
 
         -- remove aliasing
-        properties["text".. ext] = nil
-        properties["mask".. ext] = nil
-        properties["fill"  .. ext] = nil
-        properties["border".. ext] = nil
-        properties["accent".. ext] = nil
+        properties["text".. ext]       = nil
+        properties["mask".. ext]       = nil
+        properties["fill"  .. ext]     = nil
+        properties["border".. ext]     = nil
+        properties["accent".. ext]     = nil
+        properties["background".. ext] = nil
 
     end
 
@@ -64,7 +67,8 @@ function ui.tools.formatProperties(properties)
 end
 
 -- align an objects coords with its parents
-function ui.tools.alignObject(obj, parent)
+function ui.tools.alignObject(obj)
+    local parent = obj.parent
     local x, y = obj.x, obj.y
     local pw, ph = parent.w * parent.scale, parent.h * parent.scale
     local ow, oh = obj.w * obj.scale, obj.h * obj.scale
@@ -138,7 +142,7 @@ function ui.tools.tagTable(tag)
         p.__tag = tag
 
         function p:__call(t)
-            local temp = table.merge(t, self)
+            local temp = table.add(t, self)
             return temp
         end
 

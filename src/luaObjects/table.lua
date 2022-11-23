@@ -19,7 +19,26 @@ function table.deepcopy(orig, copies)
     return copy
 end
 
-function table.merge(a, b, temp)
+function table.subtract(a, b, temp)
+    local temp = temp or {}
+    local a, b = a or {}, b or {}
+
+    for key, val in pairs(a) do
+        if not b[key] and a[key] then
+            temp[key] = val
+        end
+    end
+
+    for key, val in pairs(b) do
+        if not a[key] and b[key] then
+            temp[key] = val
+        end
+    end
+
+    return temp
+end
+
+function table.add(a, b, temp)
     local temp = temp or {}
     local a, b = a or {}, b or {}
 
@@ -33,7 +52,7 @@ function table.merge(a, b, temp)
         -- merge subtables
         if temp[key] ~= nil then
             if type(temp[key]) == "table" and type(b[key]) == "table" then
-                temp[key] = table.merge(temp[key], b[key])
+                temp[key] = table.add(temp[key], b[key])
             end
         else
 
@@ -44,7 +63,7 @@ function table.merge(a, b, temp)
 
     -- merge meta data
     if getmetatable(a) and getmetatable(b) then
-        setmetatable(temp, table.merge(
+        setmetatable(temp, table.add(
             getmetatable(a), getmetatable(b)
         ))
     end

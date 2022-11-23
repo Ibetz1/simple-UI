@@ -51,7 +51,7 @@ local button = ui.button {
     } 
 }
 
-local g = ui.__tags.container {
+local g = _scene_ {
     snapx = 8,
     snapy = 8,
     s1 = slider,

@@ -10,10 +10,10 @@ ui.__tags.image =     require(_PACKAGE .. "image")
 ui.__tags.text =      require(_PACKAGE .. "text")
 
 return {
-    button   = ui.tools.tagTable("button"),
-    image    = ui.tools.tagTable("image"),
-    slider   = ui.tools.tagTable("slider"),
-    checkBox = ui.tools.tagTable("checkBox"),
-    text     = ui.tools.tagTable("text"),
-    group    = ui.tools.tagTable("container")
+    button    = ui.tools.tagTable("button"),
+    image     = ui.tools.tagTable("image"),
+    slider    = ui.tools.tagTable("slider"),
+    checkBox  = ui.tools.tagTable("checkBox"),
+    text      = ui.tools.tagTable("text"),
+    container = ui.tools.tagTable("container")
 }

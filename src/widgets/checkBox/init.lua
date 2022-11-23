@@ -1,19 +1,16 @@
 -- object and environment
 local _PACKAGE = string.gsub(...,"%.","/") .. "/" or ""
 local env = require(_PACKAGE .. "defaultEnv")
-local obj = object:new(ui.__tags.container)
+local obj = object:new(ui.__tags.container, env)
 
 function obj:init(properties)
 
     -- initiate widget
-    self:show()
-    self:loadProperties(properties, env)
+    self.show = true
 
     -- custom properties
     self.val = false
     self.buffer = love.graphics.newCanvas(self.w, self.h)
-
-    self:loadChildren()
 end
 
 -- activates functions accordingly
@@ -100,6 +97,7 @@ end
 
 -- draws button
 function obj:draw(ox, oy)
+
     local ox, oy = ox or 0, oy or 0
 
     -- draw buffer with mask
